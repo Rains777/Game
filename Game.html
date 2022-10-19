@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlappyBird</title>
+</head>
+<body>
+    <h1>Прыгать на пробел</h1>
+    <h1 id="showScore">0</h1>
+    <canvas id="canv" width=800 height=800></canvas>
+<style>
+    #canv {
+    background-color: rgb(148, 157, 173);    
+    }
+
+    #showScore {
+        position: absolute;
+        top: 100px;
+        left: 400px;
+        font-size: 80px;
+    }
+</style>
+<script>
+  var canvas = document.getElementById("canv");
+var c = canvas.getContext("2d");
+
+class Player {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.w = 40;
+        this.h = 40;
+        this.ySpeed = 0.3;
+    }
+    show() {
+        c.fillStyle = 'red';
+        c.fillRect(this.x, this.y, this.w, this.h);
+    }
+    update() {
+        this.y += this.ySpeed;
+        this.ySpeed += gravity;
+    }
+}
+
+class TopPipe {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.w = 40;
+        this.h = Math.floor(Math.random() * 500) + 100;
+        this.xSpeed = 1.2;
+        
+        this.needsAdd = true;
+    }
+    show() {
+        c.fillStyle = 'grey';
+        c.fillRect(this.x, this.y, this.w, this.h);
+    }
+    update() {
+        this.x -= this.xSpeed;
+        
+        if (p.x < this.x + this.w && p.x + p.w > this.x && p.y < this.y + this.h && p.y + p.h > this.y) {
+            canFlap = false;
+            for (let i = 0; i < topPipes.length; i++) {
+                topPipes[i].xSpeed = 0;
+                bottomPipes[i].xSpeed = 0;
+            }
+        }
+        
+        if (p.x < this.x + this.w && p.x + p.w-10 > this.x && this.needsAdd) {
+            score++;
+            this.needsAdd = false
+        }
+    }
+}
+
+class BottomPipe {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.w = 40;
+        this.h = 800;
+        this.xSpeed = 1.2;
+    }
+    show() {
+        c.fillStyle = 'grey';
+        c.fillRect(this.x, this.y, this.w, this.h);
+    }
+    update() {
+        this.x -= this.xSpeed;
+        
+        if (p.x < this.x + this.w && p.x + p.w > this.x && p.y < this.y + this.h && p.y + p.h > this.y) {
+            canFlap = false;
+            for (let i = 0; i < topPipes.length; i++) {
+                topPipes[i].xSpeed = 0;
+                bottomPipes[i].xSpeed = 0;
+            }
+        }
+    }
+}
+
+var p;
+
+var gravity = 0.1;
+
+var topPipes = [];
+var bottomPipes = [];
+var pipeX = 800;
+
+var score = 0;
+
+var canFlap = true;
+
+window.onload = function() {
+    start();
+    setInterval(update, 10);
+}
+
+function start() {
+    p = new Player(400, 400);
+    
+    for (let i = 0; i < 40; i++) {
+        var tp = new TopPipe(pipeX, 0);
+        topPipes.push(tp);
+        
+        var bp = new BottomPipe(pipeX, tp.h+150);
+        bottomPipes.push(bp);
+        
+        pipeX+=300;
+    }
+}
+
+function update() {
+    canvas.width=canvas.width;
+    
+    p.show();
+    p.update();
+    
+    c.fillStyle = 'grey';
+    c.fillRect(0, 750, 800, 100);
+    
+    c.fillRect(0, 0, 800, 50);
+    if (p.y >= 750-40) {
+        location.reload();   
+    }
+    if (p.y <= 0+40) {
+        location.reload();
+    }
+
+    for (let i = 0; i < topPipes.length; i++) {
+        topPipes[i].show();
+        bottomPipes[i].show();        
+        topPipes[i].update();
+        bottomPipes[i].update();
+    }
+    //score
+    document.getElementById("showScore").innerHTML = score;
+}
+
+function keyDown(e) {
+    if (canFlap) {
+        p.ySpeed = -3;
+    }
+}
+  
+document.onkeydown = keyDown;
+</script>
+</body>
+</html>
